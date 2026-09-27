@@ -1,0 +1,50 @@
+@startuml
+title Component Diagram - Autism Prediction System
+
+package "Presentation Layer" {
+  [Templates\n(login, signup, homepage,\npredict, result, performance, chart)]
+  [Browser UI]
+}
+
+package "Application Layer" {
+  [Flask Routes / Controller]
+  [Session Management]
+  [Auth Module]
+}
+
+package "ML Layer" {
+  [Encoder Module]
+  [Model Manager\n(RF + AdaBoost)]
+  [Metrics Engine]
+}
+
+package "Reporting Layer" {
+  [PDF Generator\n(ReportLab)]
+}
+
+package "Data/Artifacts Layer" {
+  database "users.json" as Users
+  file "train.csv" as Train
+  file "best_model.pkl" as RF
+  file "adaboost_model.pkl" as AB
+  file "encoder.pkl" as ENC
+}
+
+[Browser UI] --> [Templates]
+[Templates] --> [Flask Routes / Controller]
+[Flask Routes / Controller] --> [Session Management]
+[Flask Routes / Controller] --> [Auth Module]
+[Flask Routes / Controller] --> [Encoder Module]
+[Flask Routes / Controller] --> [Model Manager\n(RF + AdaBoost)]
+[Flask Routes / Controller] --> [Metrics Engine]
+[Flask Routes / Controller] --> [PDF Generator\n(ReportLab)]
+
+[Auth Module] --> Users
+[Encoder Module] --> ENC
+[Model Manager\n(RF + AdaBoost)] --> RF
+[Model Manager\n(RF + AdaBoost)] --> AB
+[Metrics Engine] --> Train
+[Metrics Engine] --> ENC
+[PDF Generator\n(ReportLab)] --> [Metrics Engine]
+
+@enduml

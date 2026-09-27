@@ -1,0 +1,32 @@
+@startuml
+left to right direction
+title Use Case Diagram - Autism Prediction System
+
+actor User
+
+rectangle "Autism Prediction System" {
+  usecase "Sign Up" as UC1
+  usecase "Login" as UC2
+  usecase "Select Model\n(RF/AdaBoost)" as UC3
+  usecase "Submit Questionnaire" as UC4
+  usecase "Predict ASD\n(YES/NO + Confidence)" as UC5
+  usecase "View Performance Analysis" as UC6
+  usecase "Compare RF vs AdaBoost" as UC7
+  usecase "View Charts" as UC8
+  usecase "Download PDF Report" as UC9
+  usecase "Logout" as UC10
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC6
+User --> UC8
+User --> UC9
+User --> UC10
+
+UC4 --> UC5 : <<include>>
+UC6 --> UC7 : <<include>>
+
+@enduml

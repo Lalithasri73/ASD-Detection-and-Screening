@@ -1,0 +1,34 @@
+@startuml
+title Deployment Diagram - Autism Prediction System
+
+node "Client Device" as Client {
+  artifact "Web Browser"
+}
+
+node "Application Server (Flask)" as AppServer {
+  artifact "app.py"
+  artifact "templates/*"
+  artifact "static/*"
+}
+
+node "Model/Data Storage" as Storage {
+  artifact "model/best_model.pkl"
+  artifact "model/adaboost_model.pkl"
+  artifact "model/encoder.pkl"
+  artifact "train.csv"
+  artifact "users.json"
+}
+
+node "Python Runtime Environment" as Runtime {
+  artifact "Flask"
+  artifact "scikit-learn"
+  artifact "pandas/numpy"
+  artifact "matplotlib/seaborn"
+  artifact "reportlab"
+}
+
+Client --> AppServer : HTTP/HTTPS\n(login, predict, performance,\nchart, download/pdf)
+AppServer --> Storage : Read/Write files
+AppServer --> Runtime : Execute app, ML inference,\nchart generation, PDF generation
+
+@enduml

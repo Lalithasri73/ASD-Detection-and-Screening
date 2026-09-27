@@ -1,0 +1,49 @@
+@startuml
+title Sequence Diagram - Prediction + PDF Download
+
+actor User
+participant Browser
+participant FlaskAppController as Controller
+participant AuthService as Auth
+participant EncoderService as Encoder
+participant ModelManager as Models
+participant MetricsService as Metrics
+participant ReportService as Report
+
+User -> Browser: Open /login
+Browser -> Controller: GET /login
+Controller --> Browser: login page
+
+User -> Browser: Submit login form
+Browser -> Controller: POST /login
+Controller -> Auth: validate_login(username,password)
+Auth --> Controller: valid
+Controller --> Browser: redirect /homepage
+
+User -> Browser: Open prediction form
+Browser -> Controller: GET /predict
+Controller --> Browser: predict page (model options)
+
+User -> Browser: Submit questionnaire + model_choice
+Browser -> Controller: POST /predict
+Controller -> Encoder: prepare_features(form_data)
+Encoder --> Controller: encoded features + display features
+
+Controller -> Models: predict(model_id, X)
+Models --> Controller: prediction (0/1)
+Controller -> Models: predict_proba(model_id, X)
+Models --> Controller: confidence
+
+Controller -> Metrics: metrics_by_model[model_id]
+Metrics --> Controller: cm_plot + dist_plot + metrics
+Controller --> Browser: result page (YES/NO + charts)
+
+User -> Browser: Click Download PDF
+Browser -> Controller: GET /download/pdf
+Controller -> Metrics: metrics_by_model[model_id]
+Metrics --> Controller: model metrics/charts
+Controller -> Report: generate_pdf(assessment, metrics)
+Report --> Controller: PDF bytes
+Controller --> Browser: application/pdf download
+
+@enduml

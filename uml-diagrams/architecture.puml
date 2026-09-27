@@ -1,0 +1,62 @@
+@startuml
+skinparam handwritten false
+skinparam roundcorner 10
+skinparam ComponentBackgroundColor #EBF5FB
+skinparam DatabaseBackgroundColor #FCF3CF
+skinparam NodeBackgroundColor #F2F3F4
+skinparam TitleFontSize 24
+
+title System Architecture Diagram (UML Deployment View)
+caption B.Tech Final Year Project: Multimodal Autism Screening System
+
+node "External Client Device" as client_node {
+  [Web Browser (HTML5/CSS3/JS)] <<Presentation>> as browser
+}
+
+node "Application Server Instance" as app_server {
+  [Flask Web Application] <<Control Layer>> as flask_app
+  
+  package "Multimodal Inference Engine" {
+    [Behavioral Feature Extractor\n(Label Encoders)] as behavior_pre
+    [AdaBoost Classifier] as behavior_model
+    [Audio Signal Processor\n(Librosa + MFCCs)] as audio_pre
+    [Random Forest Classifier] as audio_model
+  }
+
+  [PDF Generation Engine\n(xhtml2pdf)] as pdf_engine
+}
+
+node "Storage & File System" as storage_server {
+  database "Model Repository (.pkl)" as model_db {
+    file "best_model.pkl"
+    file "audio_classifier.pkl"
+    file "encoder.pkl"
+  }
+  
+  folder "Static Data / Uploads" as static_uploads {
+    folder "Behavioral Logs"
+    folder "Audio Recordings (.wav)"
+  }
+}
+
+' Interactions
+browser <--> flask_app : HTTP(S) Requests / Responses
+flask_app ..> pdf_engine : Triggers Report
+
+' Feature Flows
+flask_app --> behavior_pre : Sends Form Data
+flask_app --> audio_pre : Sends WAV File Path
+
+' Preprocessing Flows
+behavior_pre ..> behavior_model : Processed Tensor
+audio_pre ..> audio_model : Processed MFCCs
+
+' Model Loading
+model_db --> behavior_model : Model Weights
+model_db --> audio_model : Model Weights
+model_db --> behavior_pre : Categorical Maps
+
+' Storage Interaction
+flask_app <--> static_uploads : Reads/Writes Files
+
+@enduml

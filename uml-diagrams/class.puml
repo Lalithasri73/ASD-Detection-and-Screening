@@ -1,0 +1,79 @@
+@startuml
+title Class Diagram - Autism Prediction System
+
+class FlaskAppController {
+  +login()
+  +signup()
+  +logout()
+  +homepage()
+  +about()
+  +predict_page()
+  +performance()
+  +chart()
+  +download_result_pdf()
+}
+
+class AuthService {
+  +load_users()
+  +save_users(users)
+  +validate_login(username, password)
+}
+
+class EncoderService {
+  +safe_transform(encoder, value, fallback)
+  +prepare_features(form_data)
+}
+
+class ModelManager {
+  +models: dict
+  +model_labels: dict
+  +predict(model_id, X)
+  +predict_proba(model_id, X)
+  +load_or_train_adaboost()
+}
+
+class MetricsService {
+  +metrics_by_model: dict
+  +compute_metrics_for_model(model_id)
+  +get_comparison_rows()
+}
+
+class ReportService {
+  +generate_pdf(assessment, metrics)
+}
+
+class Assessment {
+  +username: str
+  +model_id: str
+  +model_name: str
+  +prediction: str
+  +confidence: str
+  +features: dict
+  +timestamp_utc: str
+}
+
+class UserStore {
+  +users_json_path: str
+}
+
+class ModelArtifacts {
+  +best_model.pkl
+  +adaboost_model.pkl
+  +encoder.pkl
+  +train.csv
+}
+
+FlaskAppController --> AuthService
+FlaskAppController --> EncoderService
+FlaskAppController --> ModelManager
+FlaskAppController --> MetricsService
+FlaskAppController --> ReportService
+FlaskAppController --> Assessment
+
+AuthService --> UserStore
+ModelManager --> ModelArtifacts
+MetricsService --> ModelArtifacts
+ReportService --> MetricsService
+ReportService --> Assessment
+
+@enduml

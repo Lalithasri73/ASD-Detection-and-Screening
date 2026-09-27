@@ -1,0 +1,61 @@
+@startuml
+title Structure Diagram - Autism Prediction System
+left to right direction
+skinparam packageStyle rectangle
+
+package "Autism_Prediction_System-main" {
+  [app.py]
+  [requirements.txt]
+  [README.md]
+  [train.csv]
+  [users.json]
+
+  package "model/" {
+    [best_model.pkl]
+    [adaboost_model.pkl]
+    [encoder.pkl]
+  }
+
+  package "templates/" {
+    [login.html]
+    [signup.html]
+    [homepage.html]
+    [about.html]
+    [predict.html]
+    [result.html]
+    [performance.html]
+    [chart.html]
+  }
+
+  package "static/" {
+    [images/css/js assets]
+  }
+
+  package "uml-diagrams/" {
+    [class.puml]
+    [sequence.puml]
+    [component.puml]
+    [deployment.puml]
+    [usecase.puml]
+    [structure.puml]
+  }
+
+  package "out/uml-diagrams/" {
+    [class.png]
+    [sequence.png]
+    [component.png]
+    [deployment.png]
+    [usecase.png]
+    [structure.png]
+  }
+}
+
+[app.py] --> [templates/]
+[app.py] --> [model/]
+[app.py] --> [train.csv]
+[app.py] --> [users.json]
+[app.py] --> [static/]
+[README.md] --> [out/uml-diagrams/]
+[uml-diagrams/] --> [out/uml-diagrams/]
+
+@enduml
