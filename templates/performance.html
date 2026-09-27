@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance | Autism Prediction System</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to right, #2575fc, #6a11cb); margin: 0; color:#222; }
+    .navbar { background: white; padding: 15px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .navbar a { text-decoration: none; color: #6a11cb; font-weight: bold; padding: 5px 15px; border-radius: 5px; }
+    .navbar a:hover { background: #f0e6ff; }
+    .container { max-width: 1100px; margin: 30px auto; background: white; border-radius: 15px; padding: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    h1 { margin: 0 0 10px 0; }
+    .sub { color:#555; margin-top: 0; }
+    .cards { display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0 25px 0; }
+    .card { background:#f8f9fa; border: 1px solid #dee2e6; border-radius: 12px; padding: 14px; }
+    .card .label { font-size: 12px; color:#6c757d; font-weight: 800; text-transform: uppercase; }
+    .card .value { font-size: 22px; font-weight: 900; color:#2d3436; margin-top: 6px; }
+    .grid { display:grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; align-items: start; }
+    .panel { border: 1px solid #eee; border-radius: 12px; padding: 16px; background:#fff; }
+    .panel h3 { margin: 0 0 12px 0; }
+    .table-wrap { margin-top: 18px; overflow-x: auto; }
+    table.compare { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table.compare th, table.compare td { border: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; }
+    table.compare th { background:#f3f7ff; color:#1f3b82; font-weight: 800; }
+    table.compare tr:nth-child(even) td { background:#fafcff; }
+    pre { background:#0b1020; color:#eaeefc; padding: 14px; border-radius: 12px; overflow:auto; font-size: 13px; line-height: 1.35; }
+    img { max-width: 100%; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } .cards { grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a href="{{ url_for('homepage') }}">Home</a>
+    <a href="{{ url_for('about') }}">About</a>
+    <a href="{{ url_for('predict_page') }}">Prediction</a>
+    <a href="{{ url_for('performance') }}">Performance</a>
+    <a href="{{ url_for('chart') }}">Chart</a>
+    <span style="color: #6a11cb;">Welcome, <strong>{{ username }}</strong></span>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+
+  <div class="container">
+    <h1>Model Performance Metrics</h1>
+    <p class="sub">Metrics are computed using a train/test split of your `train.csv` for the selected model.</p>
+
+    {% if model_options is defined %}
+    <form method="GET" action="{{ url_for('performance') }}" style="margin: 15px 0 10px 0; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <label for="model" style="font-weight:800; color:#444;">Model</label>
+      <select id="model" name="model" style="padding:10px 12px; border-radius:10px; border:1px solid #ddd; min-width:260px;">
+        {% for m in model_options %}
+          <option value="{{ m.id }}" {% if selected_model is defined and selected_model == m.id %}selected{% endif %}>{{ m.label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" style="padding:10px 16px; border-radius:10px; border:none; background:#6a11cb; color:white; font-weight:800; cursor:pointer;">View</button>
+    </form>
+    {% endif %}
+
+    <div class="cards">
+      <div class="card">
+        <div class="label">Autistic “Accuracy” (Recall class 1)</div>
+        <div class="value">{{ '%.4f'|format(metrics.recall_1) }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Autistic Precision (class 1)</div>
+        <div class="value">{{ '%.4f'|format(metrics.precision_1) }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Non-autistic “Accuracy” (Recall class 0)</div>
+        <div class="value">{{ '%.4f'|format(metrics.recall_0) }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Non-autistic Precision (class 0)</div>
+        <div class="value">{{ '%.4f'|format(metrics.precision_0) }}</div>
+      </div>
+    </div>
+
+    {% if comparison_rows is defined %}
+    <div class="panel table-wrap">
+      <h3>RF vs AdaBoost (Same Test Split)</h3>
+      <table class="compare">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Precision (Autistic=1)</th>
+            <th>Recall (Autistic=1)</th>
+            <th>F1 (Autistic=1)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in comparison_rows %}
+          <tr>
+            <td>{{ r.model }}</td>
+            <td>{{ '%.4f'|format(r.accuracy) }}</td>
+            <td>{{ '%.4f'|format(r.precision_1) }}</td>
+            <td>{{ '%.4f'|format(r.recall_1) }}</td>
+            <td>{{ '%.4f'|format(r.f1_1) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <div class="grid">
+      <div class="panel">
+        <h3>Detailed Classification Report</h3>
+        <pre>{{ metrics.report }}</pre>
+      </div>
+      <div class="panel">
+        <h3>Confusion Matrix</h3>
+        <img src="data:image/png;base64,{{ cm_plot }}" alt="Confusion Matrix">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

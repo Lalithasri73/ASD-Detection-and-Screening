@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assessment Result</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to right, #2575fc, #6a11cb); color: #333; margin: 0; }
+        .navbar { background: white; padding: 15px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 10px; }
+        .navbar a { text-decoration: none; color: #6a11cb; font-weight: bold; padding: 5px 15px; border-radius: 5px; }
+        .navbar a:hover { background: #f0e6ff; }
+        .container { max-width: 1000px; margin: 30px auto; background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        
+        .res-header { text-align: center; margin-bottom: 30px; }
+        .res-circle { width: 80px; height: 80px; background: #fff3cd; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 35px; }
+        .prediction-text { font-size: 56px; font-weight: 800; color: #ffc107; margin: 10px 0; letter-spacing: 1px; }
+        .confidence { margin-top: 8px; font-weight: 700; color: #2d3436; }
+        .small-note { margin-top: 10px; color: #555; line-height: 1.45; }
+        
+        .section-title { font-size: 22px; border-left: 5px solid #6a11cb; padding-left: 15px; margin: 30px 0 15px 0; color: #444; }
+        .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .data-card { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6; text-align: center; }
+        .data-card label { font-size: 11px; color: #6c757d; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .data-card span { font-size: 18px; font-weight: bold; color: #2d3436; }
+        .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 14px; font-weight: 800; }
+        .pill-yes { background: #ffe3e6; color: #b02a37; }
+        .pill-no { background: #e8f5e9; color: #146c43; }
+
+        .btn-group { display: flex; gap: 15px; justify-content: center; margin-top: 40px; flex-wrap: wrap; }
+        .btn { padding: 12px 25px; border-radius: 25px; border: none; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 14px; }
+        .btn-new { background: #6a11cb; color: white; }
+        .btn-perf { background: #f1f2f6; color: #2d3436; }
+        .btn-dl { background: white; border: 1px solid #6a11cb; color: #6a11cb; }
+        .viz-box { text-align: center; margin-top: 45px; }
+        .viz-box img { max-width: 100%; border-radius: 10px; margin-top: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+
+        @media (max-width: 800px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 520px) {
+            .grid-container { grid-template-columns: 1fr; }
+            .prediction-text { font-size: 44px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a href="/homepage">Home</a>
+    <a href="/about">About</a>
+    <a href="/predict">Prediction</a>
+    <a href="/performance">Performance</a>
+    <a href="/chart">Chart</a>
+    <span style="color: #6a11cb;">Welcome, <strong>{{ username }}</strong></span>
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="container">
+    <div class="res-header">
+        <div class="res-circle">{% if prediction == 'YES' %}⚠️{% else %}✅{% endif %}</div>
+        <h3>PREDICTION RESULT</h3>
+        <div class="prediction-text">{{ prediction }}</div>
+        {% if prediction_label %}
+        <div style="color:#666; font-weight:700;">{{ prediction_label }}</div>
+        {% endif %}
+        {% if model_name %}
+        <div style="color:#666; margin-top:6px;">Model: <strong>{{ model_name }}</strong></div>
+        {% elif features.model_used is defined %}
+        <div style="color:#666; margin-top:6px;">Model: <strong>{{ features.model_used }}</strong></div>
+        {% endif %}
+        <div class="confidence">Confidence: {{ confidence }}</div>
+        {% if hybrid_mode %}
+        <div style="color:#666; margin-top:6px;">Hybrid Mode: <strong>{{ hybrid_mode }}</strong> | Hybrid Score: <strong>{{ hybrid_score }}</strong></div>
+        {% endif %}
+        <p class="small-note">This is a screening output based on your inputs. For a medical diagnosis, please consult a qualified healthcare professional.</p>
+    </div>
+
+    {% if audio_url %}
+    <div class="section-title">Audio Playback</div>
+    <div class="grid-container" style="display: block;">
+        <div class="data-card" style="text-align: center; padding: 20px;">
+            <p style="margin-bottom: 15px; font-weight: bold; color: #333;">Original File: {{ audio_filename }}</p>
+            <audio controls style="width: 100%; max-width: 400px;">
+                <source src="{{ audio_url }}" type="audio/wav">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if behavioral_prediction or audio_result %}
+    <div class="section-title">Multimodal Analysis</div>
+    <div class="grid-container">
+        {% if behavioral_prediction %}
+        <div class="data-card">
+            <label>Behavioral Result</label>
+            <span>{{ behavioral_prediction }}</span>
+            <div style="margin-top:6px; color:#666; font-weight:700; font-size:14px;">Confidence: {{ behavioral_confidence }}</div>
+        </div>
+        {% endif %}
+        {% if audio_result %}
+        <div class="data-card">
+            <label>Audio Analysis</label>
+            <span>{{ audio_result.prediction }}</span>
+            <div style="margin-top:6px; color:#666; font-weight:700; font-size:14px;">Status: {{ audio_result.status }}</div>
+            <div style="margin-top:4px; color:#666; font-weight:700; font-size:14px;">Confidence: {{ audio_result.confidence }}</div>
+            {% if audio_result.error %}
+            <div style="margin-top:6px; color:#b02a37; font-weight:700; font-size:12px;">{{ audio_result.error }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if hybrid_mode != 'Audio-Only' %}
+    <div class="section-title">Behavioral Responses</div>
+    <div class="grid-container">
+        {% for i in range(1, 11) %}
+        {% set v = features['A' ~ i ~ '_Score'] %}
+        <div class="data-card">
+            <label>A{{i}} SCORE</label>
+            <span>
+                {% if v == 1 %}
+                    <span class="pill pill-yes">Yes</span>
+                {% else %}
+                    <span class="pill pill-no">No</span>
+                {% endif %}
+                <span style="margin-left:8px; color:#666; font-weight:700;">(value: {{ v }})</span>
+            </span>
+        </div>
+        {% endfor %}
+        {% if features.aq10_total is defined %}
+        <div class="data-card">
+            <label>AQ10 TOTAL</label>
+            <span>{{ features.aq10_total }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="section-title">Demographic Information</div>
+    <div class="grid-container">
+        <div class="data-card"><label>AGE</label><span>{{ features.age }}</span></div>
+        <div class="data-card"><label>GENDER</label><span>{{ features.gender }}</span></div>
+        <div class="data-card"><label>ETHNICITY</label><span>{{ features.ethnicity }}</span></div>
+        <div class="data-card"><label>JAUNDICE</label><span>{{ features.jaundice }}</span></div>
+        <div class="data-card"><label>FAMILY HISTORY</label><span>{{ features.austim }}</span></div>
+        <div class="data-card"><label>COUNTRY</label><span>{{ features.contry_of_res }}</span></div>
+        <div class="data-card"><label>USED APP BEFORE</label><span>{{ features.used_app_before }}</span></div>
+        <div class="data-card"><label>RELATION</label><span>{{ features.relation }}</span></div>
+        <div class="data-card"><label>PREV SCORE (RESULT)</label><span>{{ features.result }}</span></div>
+    </div>
+    {% endif %}
+
+    <div class="btn-group">
+        <a href="/predict" class="btn btn-new">🔄 NEW ASSESSMENT</a>
+        <a href="/performance" class="btn btn-perf">📊 PERFORMANCE ANALYSIS</a>
+        <a href="/download/pdf" class="btn btn-dl">💾 DOWNLOAD PDF</a>
+    </div>
+
+    <div class="viz-box">
+        <h3 style="margin: 0; color:#333;">Model Performance Visuals</h3>
+        <img src="data:image/png;base64,{{ cm_plot }}" alt="Confusion Matrix">
+        <img src="data:image/png;base64,{{ dist_plot }}" alt="Distribution Chart">
+    </div>
+</div>
+
+</body>
+</html>

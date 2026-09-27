@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audio Result | Autism Prediction System</title>
+  <script src="https://unpkg.com/wavesurfer.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to right, #2575fc, #6a11cb); margin: 0; color:#222; }
+    .navbar { background: white; padding: 15px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .navbar a { text-decoration: none; color: #6a11cb; font-weight: bold; padding: 5px 15px; border-radius: 5px; }
+    .navbar a:hover { background: #f0e6ff; }
+    .container { max-width: 980px; margin: 35px auto; background: #fff; border-radius: 14px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .cards { display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+    .card { background:#f8f9fa; border:1px solid #e5e7eb; border-radius:10px; padding:12px; }
+    .card .label { font-size: 12px; color:#6b7280; text-transform: uppercase; font-weight:700; }
+    .card .value { font-size: 20px; font-weight:800; margin-top:6px; }
+    #waveform { margin-top: 16px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px; background:#fbfdff; }
+    .anomaly-list { margin-top: 12px; padding-left: 20px; }
+    .anomaly-list li { margin: 5px 0; }
+    .btn-row { margin-top: 18px; display:flex; gap:10px; flex-wrap: wrap; }
+    .btn { background:#6a11cb; color:#fff; border:none; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:700; cursor:pointer; }
+    .btn.secondary { background:#f1f2f6; color:#111827; }
+    @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a href="{{ url_for('homepage') }}">Home</a>
+    <a href="{{ url_for('about') }}">About</a>
+    <a href="{{ url_for('predict_page') }}">Prediction</a>
+    <a href="{{ url_for('audio_detect') }}">Audio Detect</a>
+    <a href="{{ url_for('performance') }}">Performance</a>
+    <a href="{{ url_for('chart') }}">Chart</a>
+    <span style="color: #6a11cb;">Welcome, <strong>{{ username }}</strong></span>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+
+  <div class="container">
+    <h1>Audio Analysis Result</h1>
+    <p>Dedicated acoustic analysis using the audio-only AI model.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="label">Predicted Label</div>
+        <div class="value">{{ audio_result.label }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Likelihood Score (Autistic)</div>
+        <div class="value">{{ '%.2f'|format((audio_result.likelihood_score or 0) * 100) }}%</div>
+      </div>
+      <div class="card">
+        <div class="label">Raw Prediction</div>
+        <div class="value">{{ audio_result.prediction }}</div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:20px;">Voice Waveform</h3>
+    <div id="waveform"></div>
+
+    <h3 style="margin-top:20px;">Detected Acoustic Findings</h3>
+    <ul class="anomaly-list">
+      {% for item in audio_result.detected_acoustic_anomalies %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+
+    <div class="btn-row">
+      <a class="btn secondary" href="{{ url_for('audio_detect') }}">Analyze Another Audio</a>
+      <a class="btn" href="{{ url_for('homepage') }}">Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+    const wavesurfer = WaveSurfer.create({
+      container: '#waveform',
+      waveColor: '#93c5fd',
+      progressColor: '#2563eb',
+      cursorColor: '#111827',
+      barWidth: 2,
+      height: 120,
+      responsive: true
+    });
+    wavesurfer.load('{{ audio_url }}');
+  </script>
+</body>
+</html>

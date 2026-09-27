@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autism Spectrum Prediction Screening</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/all.min.css">
+    <style>
+        :root {
+            --primary: #4fc3f7;
+            --primary-dark: #3da8d8;
+            --secondary: #ff9800;
+            --light: #f5f5f5;
+            --dark: #333;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            background-color: #f9f9fb;
+            color: var(--dark);
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Mode Selection Styling */
+        .mode-selection {
+            background: #e3f2fd;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            border: 2px solid var(--primary);
+        }
+
+        .mode-options {
+            display: flex;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .mode-options label {
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; }
+        
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover { background: var(--primary-dark); }
+
+        .recorder-container {
+            background: #fdf2e9;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="text-align:center; margin-bottom: 30px;">ASD Multimodal Screening</h1>
+
+    <form action="/predict" method="POST" enctype="multipart/form-data">
+        
+        <div class="mode-selection">
+            <p style="font-weight: 700; color: #1565c0;">STEP 1: Select Your Screening Method</p>
+            <div class="mode-options">
+                <label>
+                    <input type="radio" name="prediction_mode" value="behavior" checked onclick="toggleSections()"> 
+                    📝 Behavioral Questionnaire
+                </label>
+                <label>
+                    <input type="radio" name="prediction_mode" value="audio" onclick="toggleSections()"> 
+                    🎤 Voice Analysis Only
+                </label>
+            </div>
+        </div>
+
+        <div id="behavior_section">
+            <div class="section-title"><i class="fas fa-list-check"></i> Behavioral Questions (AQ-10)</div>
+            {% for i in q_numbers %}
+            <div class="form-group">
+                <label>A{{i}} Score: Does the person exhibit specific behavioral traits related to A{{i}}?</label>
+                <select name="A{{i}}_Score" class="form-control beh-input" required>
+                    <option value="1">Yes (1)</option>
+                    <option value="0" selected>No (0)</option>
+                </select>
+            </div>
+            {% endfor %}
+
+
+            <div class="section-title"><i class="fas fa-user-edit"></i> Demographics</div>
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" name="age" class="form-control beh-input" required min="1" max="100">
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <select name="gender" class="form-control beh-input" required>
+                    <option value="m">Male</option>
+                    <option value="f">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Ethnicity</label>
+                <select name="ethnicity" class="form-control beh-input" required>
+                    <option value="Asian">Asian</option>
+                    <option value="White-European">White-European</option>
+                    <option value="Middle Eastern">Middle Eastern</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Jaundice at Birth?</label>
+                <select name="jaundice" class="form-control beh-input" required>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Family history of Autism?</label>
+                <select name="austim" class="form-control beh-input" required>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Country of Residence</label>
+                <input type="text" name="contry_of_res" class="form-control beh-input" value="India" required>
+            </div>
+            <div class="form-group">
+                <label>Previous Screening Result Score (0-10)</label>
+                <input type="number" name="result" class="form-control beh-input" required min="0" max="10">
+            </div>
+            <div class="form-group">
+                <label>Relationship with Respondent</label>
+                <select name="relation" class="form-control beh-input" required>
+                    <option value="Self">Self</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Health care professional">Health care professional</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="audio_section" style="display:none;">
+            <div class="section-title"><i class="fas fa-microphone-alt"></i> Voice Analysis</div>
+            <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666;">
+                Upload a 3-5 second clear audio clip of the subject speaking.
+            </p>
+            
+            <div class="form-group">
+                <label>Upload .wav file:</label>
+                <input type="file" name="audio_file" id="audio_file" class="form-control" accept=".wav">
+            </div>
+
+            <div class="recorder-container">
+                <button type="button" id="recordBtn" class="btn-submit" style="background:#e67e22; width: auto; margin-bottom: 10px;">
+                    Start Recording
+                </button>
+                <p id="recordStatus" style="font-weight: 500;">Microphone Ready</p>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit" style="margin-top: 30px;">Run Prediction Analysis</button>
+    </form>
+</div>
+
+<script>
+    function toggleSections() {
+        const mode = document.querySelector('input[name="prediction_mode"]:checked').value;
+        const behavior = document.getElementById('behavior_section');
+        const audio = document.getElementById('audio_section');
+        const behInputs = document.querySelectorAll('.beh-input');
+        const audioInput = document.getElementById('audio_file');
+
+        if (mode === 'behavior') {
+            behavior.style.display = 'block';
+            audio.style.display = 'none';
+            // Enable behavioral validation, disable audio validation
+            behInputs.forEach(input => input.required = true);
+            audioInput.required = false;
+        } else {
+            behavior.style.display = 'none';
+            audio.style.display = 'block';
+            // Disable behavioral validation, enable audio validation
+            behInputs.forEach(input => input.required = false);
+            audioInput.required = true;
+        }
+    }
+
+    // Audio Recording Logic (Keeping your existing logic)
+    (function() {
+        let mediaRecorder;
+        let chunks = [];
+        const recordBtn = document.getElementById("recordBtn");
+        const statusEl = document.getElementById("recordStatus");
+        const fileInput = document.getElementById("audio_file");
+
+        recordBtn.addEventListener("click", async () => {
+            if (!mediaRecorder || mediaRecorder.state === "inactive") {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = e => chunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: "audio/wav" });
+                    const file = new File([blob], "recorded_audio.wav", { type: "audio/wav" });
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    fileInput.files = dt.files;
+                    statusEl.textContent = "Recording attached successfully!";
+                    chunks = [];
+                };
+                mediaRecorder.start();
+                recordBtn.textContent = "Stop Recording";
+                statusEl.textContent = "Recording...";
+            } else {
+                mediaRecorder.stop();
+                recordBtn.textContent = "Start Recording";
+            }
+        });
+    })();
+</script>
+
+</body>
+</html>
