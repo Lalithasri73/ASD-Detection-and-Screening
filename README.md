@@ -112,15 +112,7 @@ Then open http://127.0.0.1:5000/ in your browser to use the app.
 ![Structure](uml-diagrams/structure.png)
 
 
-👨‍💻 Team
-Team Lead: Shaik Maherin
-
-Member 1: B Devi
-
-Member 2: B Srilatha
-
-Member 3: B Priyanka
-
+Name : Lalitha Sri
 📄 License
 This project is for academic and learning purposes only.
 
